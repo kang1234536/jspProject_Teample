@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>간단한 지도 표시하기</title>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=znz7im9313&callback=initMap"></script>
+<style>
+#here{
+	border: 1px solid red;
+}
+#here2{
+	border: 1px solid blue;
+}
+</style>
+</head>
+<body>
+<div id="map" style="width:100%;height:600px;"></div>
+<!-- xml정보  -->
+
+<script>
+$(function(){
+var mapOptions = {
+    center: new naver.maps.LatLng(37.3595704, 127.105399),
+    zoom: 10
+};
+
+var map = new naver.maps.Map('map', mapOptions);
+
+
+
+
+
+//마커 이미지!! position을 xml 에서 위도경도 구해서  넣기 
+var marker = new naver.maps.Marker({
+    position: new naver.maps.LatLng(37.3595704, 127.105399),
+    map: map,
+	icon: {
+		url: 'https://ifh.cc/g/89Mc1H.png',
+		size: new naver.maps.Size(120,150),
+		origin:new naver.maps.Point(0,0),
+		anchor:new naver.maps.Point(08,48)
+	}    
+});
+//정보창내용  !!
+var contentString=[
+	  '<div class="iw_inner">',
+      '   <h3></h3>',
+      '   <p>서울특별시 중구 태평로1가 31 | 서울특별시 중구 세종대로 110 서울특별시청<br />',     
+      '       02-120 | 공공,사회기관 &gt; 특별,광역시청<br />',
+      '       <a href="http://www.seoul.go.kr" target="_blank">www.seoul.go.kr/</a>',
+      '   </p>',
+      '</div>'
+].join('');
+
+//정보창이미지
+var infowindow = new naver.maps.InfoWindow({
+    content: contentString,
+    maxWidth: 140,
+    backgroundColor: "#eee",
+    borderColor: "#2db400",
+    borderWidth: 5,
+    anchorSize: new naver.maps.Size(30, 30),
+    anchorSkew: true,
+    anchorColor: "#eee",
+    pixelOffset: new naver.maps.Point(20, -20)
+});
+
+
+
+
+
+//클릭이벤트
+naver.maps.Event.addListener(marker,"click",function(e){
+	if(infowindow.getMap()){
+		infowindow.close();
+	}else{
+		infowindow.open(map,marker);
+	}
+});
+
+
+	var xhr = new XMLHttpRequest();
+	var xhr2 = new XMLHttpRequest();
+	var url = 'http://openapi.animal.go.kr/openapi/service/rest/abandonmentPublicSrvc/sido'; /*URL*/
+	var url2 = 'http://openapi.animal.go.kr/openapi/service/rest/abandonmentPublicSrvc/sigungu?upr_cd=6110000&ServiceKey=E%2BZTrGwIlQduLFIYgx4BLluIr5uMHb%2FqqhckInIDSU9jG7cf549CZ3%2BXfANRqOTNmE3w4gNsA6rbA%2B4B8PIgWw%3D%3D';
+	var queryParams = '?' + encodeURIComponent('ServiceKey') + '='+'E%2BZTrGwIlQduLFIYgx4BLluIr5uMHb%2FqqhckInIDSU9jG7cf549CZ3%2BXfANRqOTNmE3w4gNsA6rbA%2B4B8PIgWw%3D%3D'; /*Service Key*/
+	xhr.open('GET', url + queryParams);
+	xhr2.open('GET', url2 );
+	xhr.onreadystatechange = function () {
+	    if (this.readyState == 4) {
+	    	var s=`<table>
+				<tr>
+				<td>결과코드</td>
+				<td>결과메시지</td>
+				<td>시군구상위코드</td>
+				<td>시군구코드</td>
+				<td>시군구명</td>				
+			</tr>`;
+			
+			here.innerHTML= s+"</table>";
+	    	
+	    }
+	};
+
+	xhr.send('');
+	
+	xhr2.onreadystatechange = function () {
+	    if (this.readyState == 4) {
+	    	
+	       
+	    	$("#here2").html('Status: '+this.status+'nHeaders: '+JSON.stringify(this.getAllResponseHeaders())+'nBody: '+this.responseText);
+	    }
+	};
+
+	xhr2.send('');
+	
+
+});
+
+</script>
+
+<script>
+var url="https://api.bithumb.com/public/ticker/ALL";
+
+
+var xhr=new XMLHttpRequest();
+xhr.open("get", url,true);
+xhr.onreadystatechange=function(){
+	if(xhr.readyState==4 && xhr.status==200){
+		var s=`<table>
+			<tr>
+			<td>종목이름</td>
+			<td>opening_price</td>
+			<td>closing_price</td>
+			<td>min_price</td>
+			<td>max_price</td>
+			<td>units_traded</td>
+			<td>acc_trade_value</td>
+			<td>prev_closing_price</td>
+			<td> units_traded_24H</td>
+			<td>acc_trade_value_24H</td>
+			<td>fluctate_24H</td>
+			<td>fluctate_rate_24H</td>
+		</tr>`;
+		var obj=JSON.parse(xhr.responseText);
+		for(var item in obj.data){
+			if(item=='date') continue
+			s+="<tr><td>"+item+"</td>";
+			for(var itemInfo in obj.data[item]){
+				s+="<td>"+obj.data[item][itemInfo]+"</td>";
+			}
+			s+="</tr>";
+		}
+		
+		here.innerHTML= s+"</table>";
+					
+	}
+};
+xhr.send();
+
+
+</script>
+
+<div id="here">요기요</div>
+<div id="here2">요기요2</div>
+</body>
+</html>
